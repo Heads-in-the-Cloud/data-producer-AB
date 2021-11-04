@@ -9,14 +9,14 @@ def produce_user():
         { "id": 2, "name": "Traveller" },
         { "id": 3, "name": "Admin" }
     ])
-    password = bcrypt.hashpw(faker.password(length=16).encode('utf-8'), bcrypt.gensalt())
+    password = bcrypt.hashpw(faker.password(length=16), bcrypt.gensalt())
     return {
         "role": role,
         "givenName": faker.first_name(),
         "familyName": faker.last_name(),
         "username": faker.user_name(),
         "email": faker.email(),
-        "password": str(password, encoding = 'utf-8'),
+        "password": password,
         "phone": faker.phone_number(),
     }
 
@@ -25,10 +25,8 @@ if __name__ == '__main__':
     api_host = 'http://' + os.environ['API_HOST']
 
     # First, login as an Admin
-    token = requests.post(api_host + '/login', json = { 'username': 'awalter', 'password': 'password' })
+    token = requests.post(api_host + '/login', json = { "username": "awalter", "password": "password" })
     headers = { "Authorization": "Bearer {}".format(token.json()["token"]) }
-    print(headers)
     # Then use this token for producing users
     user = produce_user()
-    print(user)
-    print(requests.post(api_host + '/api/users', headers = headers, json = user).json())
+    requests.post(api_host + '/api/users', headers = headers, json = user).json()
