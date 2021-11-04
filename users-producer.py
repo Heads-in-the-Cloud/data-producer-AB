@@ -22,7 +22,7 @@ def produce_user():
 
 if __name__ == '__main__':
     faker = Faker('en_US')
-    api_host = 'http://' + os.environ['USERS_API_HOST']
+    api_host = 'http://' + os.environ['API_HOST']
 
     # First, login as an Admin
     token = requests.post(api_host + '/login', json = { 'username': 'awalter', 'password': 'password' })
