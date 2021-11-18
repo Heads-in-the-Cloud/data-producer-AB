@@ -8,7 +8,7 @@ from concurrent.futures import ThreadPoolExecutor
 import os
 
 import requests
-from flask import Flask, request
+from flask import Flask, request, json
 
 app = Flask(__name__)
 
@@ -31,7 +31,21 @@ def produce_entities(total, produce_function):
     with ThreadPoolExecutor() as executor:
         for _ in range(total):
             results.append(executor.submit(produce_function, (headers)))
-    return list(map(lambda future: future.result().json(), results))
+    return list(map(lambda future: future.result().json(), results)), 201
+
+#@app.errorhandler(Exception)
+#def server_error(e):
+#    """Return JSON instead of HTML for HTTP errors."""
+#    # start with the correct headers and status code from the error
+#    response = e.get_response()
+#    # replace the body with JSON
+#    response.data = json.dumps({
+#        "code": e.code,
+#        "name": e.name,
+#        "description": e.description,
+#    })
+#    response.content_type = "application/json"
+#    return response
 
 @app.route('/user-roles/<int:total>', methods = [ 'POST' ])
 def user_roles_endpoint(total):
@@ -45,22 +59,22 @@ def users_endpoint(total):
 def airports_endpoint(total):
     return { 'airports': produce_entities(total, flights.produce_airport) }
 
-#@app.route('/airplanes/<int:total>', methods = [ 'POST' ])
-#def airplanes(total):
-#    return { 'airplanes': produce_entities(total, flights.produce_airplane) }
+@app.route('/airplanes/<int:total>', methods = [ 'POST' ])
+def airplanes_endpoint(total):
+    return { 'airplanes': produce_entities(total, flights.produce_airplane) }
 
 @app.route('/airplane-types/<int:total>', methods = [ 'POST' ])
-def airplane_types(total):
+def airplane_types_endpoint(total):
     return { 'airplane-types': produce_entities(total, flights.produce_airplane_type) }
 
-#@app.route('/flights/<int:total>', methods = [ 'POST' ])
-#def flights(total):
-#    return { 'flights': produce_entities(total, flights.produce_flight) }
-#
-#@app.route('/routes/<int:total>', methods = [ 'POST' ])
-#def routes(total):
-#    return { 'routes': produce_entities(total, flights.produce_route) }
-#
+@app.route('/flights/<int:total>', methods = [ 'POST' ])
+def flights_endpoint(total):
+    return { 'flights': produce_entities(total, flights.produce_flight) }
+
+@app.route('/routes/<int:total>', methods = [ 'POST' ])
+def routes_endpoint(total):
+    return { 'routes': produce_entities(total, flights.produce_route) }
+
 #@app.route('/bookings/<int:total>', methods = [ 'POST' ])
 #def bookings(total):
 #    return { 'bookings': produce_entities(total, bookings.produce_booking) }
