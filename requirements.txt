@@ -3,5 +3,8 @@ requests==2.26.0
 faker==9.6.0
 Flask==2.0.2
 
-# Only used by users-api service:
+# Only used by bookings-api service:
+uuid==1.30
+
+# Only used by users-api and bookings-api service:
 python-bcrypt==0.3.2

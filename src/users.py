@@ -29,7 +29,7 @@ def produce_user(headers):
 
     role = random.choice(user_roles)
     if len(user_roles) == 0:
-        role = produce_user_role(headers).json()
+        raise Exception("No user roles available to choose from", 400)
 
     password_len = random.randint(MIN_USER_PASSWORD_LEN, MAX_USER_PASSWORD_LEN)
     password = bcrypt.hashpw(faker.password(length = password_len), bcrypt.gensalt())
