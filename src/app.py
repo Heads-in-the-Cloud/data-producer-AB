@@ -3,19 +3,17 @@
 import bookings
 import flights
 import users
+from producer import utopia_api_url
 
 from concurrent.futures import ThreadPoolExecutor
-import os
 
 import requests
 from flask import Flask, request, json, jsonify
 
 app = Flask(__name__)
 
-users_api_url = os.getenv('USERS_API_URL')
-
 def produce_entities(total, produce_function):
-    login_path = '{}/api/login'.format(users_api_url)
+    login_path = '{}/api/login'.format(utopia_api_url)
     
     response = requests.post(url = login_path, params = request.authorization)
 

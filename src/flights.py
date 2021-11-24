@@ -1,9 +1,8 @@
-import producer
+from producer import produce_entity, utopia_api_url, faker
 
-import os, random
+import random
 
 import requests
-from faker import Faker
 
 MIN_AIRPLANE_CAPACITY = 40
 MAX_AIRPLANE_CAPACITY = 80
@@ -11,9 +10,6 @@ MIN_FLIGHT_DEPARTURE_TIME = 'now'
 MAX_FLIGHT_DEPARTURE_TIME = '+2y'
 MIN_FLIGHT_SEAT_PRICE = 120.0
 MAX_FLIGHT_SEAT_PRICE = 300.50
-
-flights_api_url = os.getenv('FLIGHTS_API_URL')
-faker = Faker('en_US')
 
 def produce_airport(headers): # Assumes city has more than 3 alphabetical chars
     def alpha_chars(str):
@@ -25,10 +21,10 @@ def produce_airport(headers): # Assumes city has more than 3 alphabetical chars
     code += random.choice(alpha_chars(city[city.find(code[1]):]))
     airport = { 'code': code.upper(), 'city': city }
 
-    return producer.produce_entity(flights_api_url + '/api/airports', headers, airport, produce_airport)
+    return produce_entity('/api/airports', headers, airport, produce_airport)
 
 def produce_airplane(headers):
-    response = requests.get(flights_api_url + '/api/airplane-types', headers = headers)
+    response = requests.get(utopia_api_url + '/api/airplane-types', headers = headers)
 
     if response.status_code != 200:
         raise Exception("Unable to retrieve airplane types", response.status_code)
@@ -41,15 +37,15 @@ def produce_airplane(headers):
 
     airplane = { "type": type }
 
-    return producer.produce_entity(flights_api_url + '/api/airplanes', headers, airplane, produce_airplane)
+    return produce_entity('/api/airplanes', headers, airplane, produce_airplane)
 
 def produce_airplane_type(headers):
     airplane_type = { "maxCapacity":  random.randint(MIN_AIRPLANE_CAPACITY, MAX_AIRPLANE_CAPACITY) }
 
-    return producer.produce_entity(flights_api_url + '/api/airplane-types', headers, airplane_type, produce_airplane_type)
+    return produce_entity('/api/airplane-types', headers, airplane_type, produce_airplane_type)
 
 def produce_flight(headers):
-    response = requests.get(flights_api_url + '/api/routes', headers = headers)
+    response = requests.get(utopia_api_url + '/api/routes', headers = headers)
 
     if response.status_code != 200:
         raise Exception("Unable to retrieve routes", response.status_code)
@@ -60,7 +56,7 @@ def produce_flight(headers):
     if len(routes) == 0:
         route = produce_route(headers)
 
-    response = requests.get(flights_api_url + '/api/airplanes', headers = headers)
+    response = requests.get(utopia_api_url + '/api/airplanes', headers = headers)
 
     if response.status_code != 200:
         raise Exception("Unable to retrieve airplanes", response.status_code)
@@ -82,11 +78,11 @@ def produce_flight(headers):
         'reservedSeats': 0,
         'seatPrice': seat_price
     }
-    return producer.produce_entity(flights_api_url + '/api/flights', headers, flight, produce_flight)
+    return produce_entity('/api/flights', headers, flight, produce_flight)
 
 
 def produce_route(headers):
-    response = requests.get(flights_api_url + '/api/airports', headers = headers)
+    response = requests.get(utopia_api_url + '/api/airports', headers = headers)
 
     if response.status_code != 200:
         raise Exception("Unable to retrieve airports", response.status_code)
@@ -103,5 +99,5 @@ def produce_route(headers):
 
     route = { "origin": origin, "destination": dest }
 
-    return producer.produce_entity(flights_api_url + '/api/routes', headers, route, produce_route)
+    return produce_entity('/api/routes', headers, route, produce_route)
 

@@ -1,22 +1,18 @@
-import producer
+from producer import produce_entity, utopia_api_url, faker
 
-from users import MIN_USER_PASSWORD_LEN, MAX_USER_PASSWORD_LEN, users_api_url
-from flights import produce_flight, flights_api_url
+from users import MIN_USER_PASSWORD_LEN, MAX_USER_PASSWORD_LEN
+from flights import produce_flight
 
-import os, random
+import random
 import uuid
 
 import bcrypt
 import requests
-from faker import Faker
 
 PASSENGER_GENDER_OPTIONS = ["Male", "Female", "Non-binary", "Other"]
 
-bookings_api_url = os.getenv('BOOKINGS_API_URL')
-faker = Faker('en_US')
-
 def produce_booking_agent(headers):
-    response = requests.get(users_api_url + '/api/users', headers = headers)
+    response = requests.get(utopia_api_url + '/api/users', headers = headers)
 
     if response.status_code != 200:
         raise Exception("Unable to retrieve users", response.status_code)
@@ -27,7 +23,7 @@ def produce_booking_agent(headers):
         users.remove(user)
         user = random.choice(users)
     if user == None:
-        response = requests.get(users_api_url + '/api/user-roles', headers = headers)
+        response = requests.get(utopia_api_url + '/api/user-roles', headers = headers)
 
         if response.status_code != 200:
             raise Exception("Unable to retrieve user roles", response.status_code)
@@ -55,15 +51,15 @@ def produce_booking_agent(headers):
     booking = produce_booking(headers).json()
 
     booking_agent = { 'booking': booking, 'agent': user }
-    return producer.produce_entity(
-        bookings_api_url + '/api/booking-agents',
+    return produce_entity(
+        '/api/booking-agents',
         headers,
         booking_agent,
         produce_booking_agent
     )
 
 def produce_booking_user(headers):
-    response = requests.get(users_api_url + '/api/users', headers = headers)
+    response = requests.get(utopia_api_url + '/api/users', headers = headers)
 
     if response.status_code != 200:
         raise Exception("Unable to retrieve users", response.status_code)
@@ -74,7 +70,7 @@ def produce_booking_user(headers):
         users.remove(user)
         user = random.choice(users)
     if user == None:
-        response = requests.get(users_api_url + '/api/user-roles', headers = headers)
+        response = requests.get(utopia_api_url + '/api/user-roles', headers = headers)
 
         if response.status_code != 200:
             raise Exception("Unable to retrieve user roles", response.status_code)
@@ -102,8 +98,8 @@ def produce_booking_user(headers):
     booking = produce_booking(headers).json()
 
     booking_user = { 'booking': booking, 'user': user }
-    return producer.produce_entity(
-        bookings_api_url + '/api/booking-users',
+    return produce_entity(
+        '/api/booking-users',
         headers,
         booking_user,
         produce_booking_user
@@ -113,15 +109,15 @@ def produce_booking_guest(headers):
     booking = produce_booking(headers).json()
 
     booking_guest = { 'booking': booking, 'email': faker.email(), 'phone': faker.phone_number() }
-    return producer.produce_entity(
-        bookings_api_url + '/api/booking-guests',
+    return produce_entity(
+        '/api/booking-guests',
         headers,
         booking_guest,
         produce_booking_guest
     )
 
 def produce_booking_payment(headers):
-    response = requests.get(bookings_api_url + '/api/bookings', headers = headers)
+    response = requests.get(utopia_api_url + '/api/bookings', headers = headers)
 
     if response.status_code != 200:
         raise Exception("Unable to retrieve bookings", response.status_code)
@@ -132,15 +128,15 @@ def produce_booking_payment(headers):
     if booking == None:
         booking = produce_booking(headers).json()
     booking_payment = { 'booking': booking, 'stripe_id': faker.credit_card_full() }
-    return producer.produce_entity(
-        bookings_api_url + '/api/booking-payments',
+    return produce_entity(
+        '/api/booking-payments',
         headers,
         booking_payment,
         produce_booking_payment
     )
 
 def produce_flight_booking(headers):
-    response = requests.get(bookings_api_url + '/api/bookings', headers = headers)
+    response = requests.get(utopia_api_url + '/api/bookings', headers = headers)
 
     if response.status_code != 200:
         raise Exception("Unable to retrieve bookings", response.status_code)
@@ -151,7 +147,7 @@ def produce_flight_booking(headers):
     if booking == None:
         booking = produce_booking(headers).json()
 
-    response = requests.get(flights_api_url + '/api/flights', headers = headers)
+    response = requests.get(utopia_api_url + '/api/flights', headers = headers)
 
     if response.status_code != 200:
         raise Exception("Unable to retrieve flights", response.status_code)
@@ -163,8 +159,8 @@ def produce_flight_booking(headers):
         flight = produce_flight(headers).json()
 
     flight_booking = { 'booking': booking, 'flight': flight }
-    return producer.produce_entity(
-        bookings_api_url + '/api/flight-bookings',
+    return produce_entity(
+        '/api/flight-bookings',
         headers,
         flight_booking,
         produce_flight_booking
@@ -172,15 +168,15 @@ def produce_flight_booking(headers):
 
 def produce_booking(headers):
     booking = { 'confirmationCode': str(uuid.uuid1()) }
-    return producer.produce_entity(
-        bookings_api_url + '/api/bookings',
+    return produce_entity(
+        '/api/bookings',
         headers,
         booking,
         produce_booking
     )
 
 def produce_passenger(headers):
-    response = requests.get(bookings_api_url + '/api/bookings', headers = headers)
+    response = requests.get(utopia_api_url + '/api/bookings', headers = headers)
 
     if response.status_code != 200:
         raise Exception("Unable to retrieve bookings", response.status_code)
@@ -202,8 +198,8 @@ def produce_passenger(headers):
         "address": faker.address()
     }
 
-    return producer.produce_entity(
-        bookings_api_url + '/api/passengers',
+    return produce_entity(
+        '/api/passengers',
         headers,
         passenger,
         produce_passenger
