@@ -1,13 +1,9 @@
-FROM python:3
+FROM austinbaugh/utopia-data-producer-base:0.0.3-SNAPSHOT
 
 WORKDIR /app
 
-COPY requirements.txt .
-RUN pip install -r requirements.txt
-
-ENV APP_FILE=app.py
 EXPOSE 5000
 
-COPY src/ .
+COPY app/ .
 
-ENTRYPOINT python $APP_FILE
+ENTRYPOINT python app

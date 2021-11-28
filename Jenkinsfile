@@ -1,13 +1,13 @@
+#!groovy
+
 pipeline {
-    agent any
+  agent { dockerfile true }
 
-    stages {
-        stage('Build') {
-            steps {
-                sh 'docker build . -t austinbaugh/utopia-data-producer:0.0.3-SNAPSHOT' 
-            }
-        }
+    stage('Build Image') {
+      steps {
+        docker.build("austinbaugh/utopia-data-producer-base:${env.BUILD_ID} -f base.Dockerfile")
+        docker.build("austinbaugh/utopia-data-producer:${env.BUILD_ID}")
+      }
     }
+  }
 }
-
-
